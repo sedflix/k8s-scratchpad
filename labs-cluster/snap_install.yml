@@ -1,0 +1,12 @@
+- hosts: all
+  become: yes
+  tasks:
+   - name: login to internet on remote
+     command: /tmp/login_binary
+     async: 1000
+     poll: 0
+
+   - name: install microk8s
+     snap:
+       name: microk8s
+       classic: yes

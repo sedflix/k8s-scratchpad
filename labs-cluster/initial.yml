@@ -1,0 +1,27 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: create the 'ubuntu' user
+      user: name=ubuntu append=yes state=present createhome=yes shell=/bin/bash
+    - name: allow 'ubuntu' to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'ubuntu ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: set up authorized keys for the ubuntu user
+      authorized_key: user=ubuntu key="{{item}}"
+      with_file:
+        - ~/.ssh/id_rsa.pub
+      
+    - name: copying login_binary
+      copy:
+        src: /usr/local/bin/login_binary
+        dest: /tmp/login_binary
+        owner: root
+        group: root
+        mode: u=rwx,g=rwx,o=rwx
+    - name: login to internet on remote
+      command: /tmp/login_binary
+      async: 1000
+      poll: 0

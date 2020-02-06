@@ -1,0 +1,45 @@
+- hosts: all
+  become: yes
+  tasks:    
+   - name: login to internet on remote
+     command: /tmp/login_binary
+     async: 1000
+     poll: 0
+  
+   - name: install Docker
+     apt:
+       name: docker.io
+       state: fixed
+       update_cache: true
+       force: yes
+
+   - name: install APT Transport HTTPS
+     apt:
+       name: apt-transport-https
+       state: fixed
+       force: yes
+
+   - name: add Kubernetes apt-key
+     apt_key:
+       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+       state: fixed
+
+   - name: add Kubernetes' APT repository
+     apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      state: fixed
+      filename: 'kubernetes'
+
+   - name: install kubelet
+     apt:
+       name: kubelet=1.14.0-00
+       state: fixed
+       update_cache: true
+       force: yes
+
+   - name: install kubeadm
+     apt:
+       name: kubeadm=1.14.0-00
+       state: fixed
+       force: yes
+   
